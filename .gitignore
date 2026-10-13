@@ -1,0 +1,30 @@
+# ---- segredos (chaves do Asaas, senha do SMTP, senha do admin, banco)
+.env
+.env.*
+!.env.example
+
+# ---- bancos de dados e backups (dados de clientes)
+*.db
+*.db-journal
+*.db-wal
+*.db-shm
+*.sqlite
+*.sqlite3
+backend-php/data/*
+!backend-php/data/.htaccess
+
+# ---- versao antiga em Python (substituida pelo backend-php, fica so no disco local)
+backend/
+
+# ---- Node / build do frontend (gerar com: cd frontend && npm run build)
+node_modules/
+frontend/dist/
+
+# ---- logs, sistema e editores
+*.log
+.DS_Store
+Thumbs.db
+desktop.ini
+.vscode/
+.idea/
+.claude/

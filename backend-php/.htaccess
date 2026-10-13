@@ -1,0 +1,13 @@
+# Apache: envia todas as requisicoes para o index.php (API + site)
+Options -Indexes
+RewriteEngine On
+# repassa o cabecalho Authorization para o PHP (sessao do cliente)
+RewriteRule .* - [E=HTTP_AUTHORIZATION:%{HTTP:Authorization}]
+RewriteRule ^(data|src|ferramentas)(/|$) - [F,L]
+RewriteRule ^\.env$ - [F,L]
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteRule ^ index.php [QSA,L]
+
+<FilesMatch "\.(env|db|md)$">
+  Require all denied
+</FilesMatch>

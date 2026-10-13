@@ -1,0 +1,41 @@
+%PDF-1.4
+1 0 obj
+<< /Type /Catalog /Pages 2 0 R >>
+endobj
+2 0 obj
+<< /Type /Pages /Kids [3 0 R] /Count 1 >>
+endobj
+3 0 obj
+<< /Type /Page /Parent 2 0 R /MediaBox [0 0 595 842] /Resources << /Font << /F1 5 0 R >> >> /Contents 4 0 R >>
+endobj
+4 0 obj
+<< /Length 513 >>
+stream
+BT
+/F1 28 Tf 1 0 0 1 60 760 Tm (Roteiro de Viagem - E-book de exemplo) Tj
+/F1 14 Tf 1 0 0 1 60 718 Tm () Tj
+/F1 12 Tf 1 0 0 1 60 690 Tm (Este PDF e um arquivo de exemplo do POC.) Tj
+/F1 12 Tf 1 0 0 1 60 664 Tm (Na versao real, aqui vai o roteiro entregue pelo cliente.) Tj
+/F1 12 Tf 1 0 0 1 60 638 Tm () Tj
+/F1 12 Tf 1 0 0 1 60 612 Tm (Dia 1 - Chegada e centro historico) Tj
+/F1 12 Tf 1 0 0 1 60 586 Tm (Dia 2 - Praias e passeio de barco) Tj
+/F1 12 Tf 1 0 0 1 60 560 Tm (Dia 3 - Gastronomia local e mirante) Tj
+ET
+endstream
+endobj
+5 0 obj
+<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica >>
+endobj
+xref
+0 6
+0000000000 65535 f 
+0000000009 00000 n 
+0000000058 00000 n 
+0000000115 00000 n 
+0000000241 00000 n 
+0000000805 00000 n 
+trailer
+<< /Size 6 /Root 1 0 R >>
+startxref
+875
+%%EOF

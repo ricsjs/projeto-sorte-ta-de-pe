@@ -1,0 +1,10 @@
+# texto sempre com LF no repositorio
+* text=auto eol=lf
+
+# binarios: nunca converter quebra de linha
+*.pdf  binary
+*.xlsx binary
+*.png  binary
+*.jpg  binary
+*.ico  binary
+*.db   binary
