@@ -206,7 +206,7 @@ function init_mysql(PDO $pdo): void
             chave VARCHAR(50) PRIMARY KEY,
             valor VARCHAR(255) NOT NULL
         )",
-        "INSERT IGNORE INTO config VALUES ('vendas_pausadas','0'), ('alerta_estoque_minimo','3'), ('valor_ebook','29.90')",
+        "INSERT IGNORE INTO config VALUES ('vendas_pausadas','0'), ('alerta_estoque_minimo','3'), ('valor_ebook','9.97')",
     ];
     foreach ($tabelas as $sql) {
         $pdo->exec($sql . (str_starts_with($sql, 'CREATE') ? ' ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci' : ''));
@@ -271,7 +271,7 @@ CREATE TABLE IF NOT EXISTS config (
 );
 INSERT OR IGNORE INTO config VALUES ('vendas_pausadas', '0');
 INSERT OR IGNORE INTO config VALUES ('alerta_estoque_minimo', '3');
-INSERT OR IGNORE INTO config VALUES ('valor_ebook', '29.90');
+INSERT OR IGNORE INTO config VALUES ('valor_ebook', '9.97');
 SQL);
     $pdo->exec(<<<SQL
 CREATE TABLE IF NOT EXISTS clientes (
