@@ -203,7 +203,7 @@ function entregar_whatsapp(array $venda, array $numeros): array
     $qtd = count($numeros);
     $msg = "Ola {$primeiro}! Seu pagamento foi confirmado.\n"
         . ($qtd === 1 ? "Seu NUMERO DA SORTE e: {$lista}\n" : "Seus {$qtd} NUMEROS DA SORTE: {$lista}\n")
-        . "Sorteio: {$numeros[0]['sorteio']} pela Loteria Federal.\n"
+        . 'Sorteio: ' . data_br((string) $numeros[0]['sorteio']) . " pela Loteria Federal.\n"
         . 'Segue em anexo o seu e-book e o regulamento. Boa sorte!';
     return ['mensagem' => $msg, 'status' => 'simulado', 'detalhe' => 'WhatsApp ainda nao integrado'];
 }

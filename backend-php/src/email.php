@@ -22,6 +22,12 @@ function email_config(): array
     ];
 }
 
+/** 2026-11-28 -> 28/11/2026; outro texto (ex.: nome do sorteio vindo da planilha) passa igual. */
+function data_br(string $s): string
+{
+    return preg_match('/^(\d{4})-(\d{2})-(\d{2})$/', $s, $m) ? "{$m[3]}/{$m[2]}/{$m[1]}" : $s;
+}
+
 function caminho_ebook(string $p): string
 {
     // caminho relativo e resolvido a partir da pasta do backend
@@ -70,17 +76,17 @@ function montar_entrega(string $nome, array $numeros): array
     $assunto = $qtd === 1 ? "Seu número da sorte: {$numeros[0]['numero']}" : "Seus {$qtd} números da sorte";
     $regTxt = $c['regulamento_url'] ? "\nRegulamento: {$c['regulamento_url']}\n" : '';
     $regHtml = $c['regulamento_url']
-        ? '<p style="margin:16px 0 0"><a href="' . $e($c['regulamento_url']) . '" style="color:#0f766e">Ler o regulamento do sorteio</a></p>'
+        ? '<p style="margin:16px 0 0"><a href="' . $e($c['regulamento_url']) . '" style="color:#e0ad45">Ler o regulamento do sorteio</a></p>'
         : '';
 
     $linhasTxt = '';
     $linhasHtml = '';
     foreach ($numeros as $n) {
         $serie = $n['serie'] ?: '-';
-        $sorteio = $n['sorteio'] ?: '-';
+        $sorteio = data_br($n['sorteio'] ?: '-');
         $linhasTxt .= "  {$n['numero']}  (série {$serie}, sorteio {$sorteio})\n";
-        $linhasHtml .= '<tr><td style="padding:8px 12px;font-size:22px;font-weight:700;letter-spacing:.06em;color:#0f766e;border-top:1px solid #c3e5dc">'
-            . $e($n['numero']) . '</td><td style="padding:8px 12px;font-size:13px;color:#3d4a44;border-top:1px solid #c3e5dc;text-align:right">Série '
+        $linhasHtml .= '<tr><td style="padding:10px 14px;font-size:24px;font-weight:700;letter-spacing:.06em;color:#f2c65a;border-top:1px solid #3a3018">'
+            . $e($n['numero']) . '</td><td style="padding:10px 14px;font-size:13px;color:#a99d82;border-top:1px solid #3a3018;text-align:right">Série '
             . $e($serie) . ' · Sorteio ' . $e($sorteio) . '</td></tr>';
     }
     $titulo = $qtd === 1 ? 'aqui está o seu número da sorte' : "aqui estão os seus {$qtd} números da sorte";
@@ -95,26 +101,30 @@ function montar_entrega(string $nome, array $numeros): array
 
     $html = <<<HTML
 <!doctype html>
-<html lang="pt-BR"><body style="margin:0;background:#f4f6f3;font-family:Segoe UI,Arial,sans-serif;color:#1b231f">
-  <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background:#f4f6f3;padding:24px 12px">
+<html lang="pt-BR"><head><meta charset="utf-8"><meta name="color-scheme" content="dark"><meta name="supported-color-schemes" content="dark"></head>
+<body style="margin:0;background:#0a0907;font-family:Segoe UI,Arial,sans-serif;color:#f6eedb" bgcolor="#0a0907">
+  <table role="presentation" width="100%" cellpadding="0" cellspacing="0" bgcolor="#0a0907" style="background:#0a0907;padding:24px 12px">
     <tr><td align="center">
-      <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="max-width:520px;background:#ffffff;border:1px solid #d8ded9;border-radius:10px">
+      <img src="cid:logo" width="160" alt="A Sorte Tá de Pé" style="display:block;width:160px;max-width:60%;height:auto;margin:0 auto 16px;border:0">
+      <table role="presentation" width="100%" cellpadding="0" cellspacing="0" bgcolor="#14110c" style="max-width:520px;background:#14110c;border:1px solid #4a3c1c;border-radius:14px">
         <tr><td style="padding:28px 28px 8px">
-          <p style="margin:0 0 4px;font-size:13px;letter-spacing:.06em;text-transform:uppercase;color:#0f766e;font-weight:600">Pagamento confirmado</p>
-          <h1 style="margin:0;font-size:22px">Olá {$primeiro}, {$titulo}</h1>
+          <p style="margin:0 0 6px;font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:#3ccf6a;font-weight:700">Pagamento confirmado</p>
+          <h1 style="margin:0;font-family:Georgia,'Times New Roman',serif;font-size:23px;line-height:1.25;color:#e0ad45">Olá {$primeiro}, {$titulo}</h1>
         </td></tr>
         <tr><td style="padding:16px 28px">
-          <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background:#d7efe9;border-radius:8px">
+          <table role="presentation" width="100%" cellpadding="0" cellspacing="0" bgcolor="#1c1810" style="background:#1c1810;border:1px solid #4a3c1c;border-radius:10px">
+            <tr><td colspan="2" style="padding:10px 14px 6px;font-size:11px;letter-spacing:.08em;font-weight:700;color:#a99d82">{$rotulo}</td></tr>
             {$linhasHtml}
           </table>
         </td></tr>
-        <tr><td style="padding:0 28px 28px;font-size:15px;line-height:1.5">
+        <tr><td style="padding:0 28px 28px;font-size:15px;line-height:1.55;color:#f6eedb">
           <p style="margin:0">O sorteio é feito pela Loteria Federal. Guarde este e-mail como comprovante. Seus números também ficam na sua conta.</p>
           <p style="margin:12px 0 0">O seu e-book com o roteiro segue em anexo.</p>
           {$regHtml}
+          <p style="margin:18px 0 0;font-family:Georgia,'Times New Roman',serif;font-size:17px;color:#e0ad45">Boa sorte!</p>
         </td></tr>
       </table>
-      <p style="font-size:12px;color:#65736c;margin:16px 0 0">Você recebeu este e-mail porque comprou o e-book.</p>
+      <p style="font-size:12px;color:#7d735e;margin:16px 0 0">Você recebeu este e-mail porque comprou o e-book.</p>
     </td></tr>
   </table>
 </body></html>
@@ -150,8 +160,21 @@ function montar_mime(array $c, string $destino, string $assunto, string $texto, 
     $b .= "--{$alt}{$eol}Content-Type: text/plain; charset=UTF-8{$eol}Content-Transfer-Encoding: base64{$eol}{$eol}"
         . chunk_split(base64_encode($texto), 76, $eol);
     if ($html !== null) {
-        $b .= "--{$alt}{$eol}Content-Type: text/html; charset=UTF-8{$eol}Content-Transfer-Encoding: base64{$eol}{$eol}"
+        $parteHtml = "Content-Type: text/html; charset=UTF-8{$eol}Content-Transfer-Encoding: base64{$eol}{$eol}"
             . chunk_split(base64_encode($html), 76, $eol);
+        // HTML que usa cid:logo leva a logo embutida (multipart/related), sem depender de URL publica
+        $logo = BASE_DIR . '/assets/logo-email.png';
+        if (str_contains($html, 'cid:logo') && is_file($logo)) {
+            $rel = 'rel_' . bin2hex(random_bytes(8));
+            $b .= "--{$alt}{$eol}Content-Type: multipart/related; boundary=\"{$rel}\"{$eol}{$eol}"
+                . "--{$rel}{$eol}{$parteHtml}"
+                . "--{$rel}{$eol}Content-Type: image/png; name=\"logo.png\"{$eol}Content-Transfer-Encoding: base64{$eol}"
+                . "Content-ID: <logo>{$eol}Content-Disposition: inline; filename=\"logo.png\"{$eol}{$eol}"
+                . chunk_split(base64_encode((string) file_get_contents($logo)), 76, $eol)
+                . "--{$rel}--{$eol}";
+        } else {
+            $b .= "--{$alt}{$eol}{$parteHtml}";
+        }
     }
     $b .= "--{$alt}--{$eol}";
     if ($anexo !== null) {

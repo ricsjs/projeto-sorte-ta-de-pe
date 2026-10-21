@@ -8,8 +8,7 @@ export default function App() {
     <>
       <nav>
         <span className="brand">
-          <svg viewBox="0 0 32 32" aria-hidden="true"><rect width="32" height="32" rx="9" fill="var(--accent)" /><circle cx="22" cy="11" r="4.5" fill="var(--sun)" /><path d="M5 22c4-3 7-3 11 0s7 3 11 0" fill="none" stroke="#fff" strokeWidth="2.4" strokeLinecap="round" /></svg>
-          Roteiro da Sorte
+          <img src="/logo.png" alt="A Sorte Tá de Pé" width="480" height="417" />
         </span>
         <div className="seg">
           <button className={tela === 'loja' ? 'on' : ''} onClick={() => setTela('loja')}>Loja</button>
