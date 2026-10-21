@@ -45,7 +45,7 @@ export default function Loja() {
       {!conta && <>
         <ol className="passos">
           <li><span className="n">1</span><span><b>Crie sua conta</b>Uma vez só, com seu CPF.</span></li>
-          <li><span className="n">2</span><span><b>Escolha quantos números</b>Pague tudo num único PIX.</span></li>
+          <li><span className="n">2</span><span><b>Escolha a quantidade de roteiros</b>Pague tudo num único PIX.</span></li>
           <li><span className="n">3</span><span><b>Receba na hora</b>E-book e números por e-mail e WhatsApp.</span></li>
         </ol>
         <Acesso onEntrou={carregarConta} />
@@ -62,10 +62,10 @@ function Topo({ status }) {
     <section className="card hero">
       <span className="tag">E-book + sorteio pela Loteria Federal</span>
       <h1>Seu roteiro de viagem com números da sorte</h1>
-      <p>Cada número vem com o e-book do roteiro completo. Quanto mais números, mais chances no sorteio.</p>
+      <p>Cada roteiro acompanha um número da sorte. Quanto mais roteiros, mais números você tem no sorteio.</p>
       {status.sorteio && <p style={{ margin: '0 0 12px' }}><b>{status.sorteio.nome}</b>{status.sorteio.data_sorteio && ` · sorteio em ${status.sorteio.data_sorteio.split('-').reverse().join('/')}`}</p>}
       <div className="chips">
-        <div className="chip"><b>{brl(status.valor)}</b>por número</div>
+        <div className="chip"><b>{brl(status.valor)}</b>por roteiro</div>
         <div className="chip"><b>{status.livres}</b>números disponíveis</div>
       </div>
       {status.total > 0 && <div className="estoque" aria-hidden="true"><i style={{ width: `${Math.min(100, (vendidos / status.total) * 100)}%` }} /></div>}
