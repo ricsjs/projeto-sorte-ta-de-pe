@@ -63,7 +63,7 @@ O comprador se cadastra uma vez, com nome, CPF validado, e-mail, WhatsApp e senh
 
 ## Painel
 
-O painel exige um login próprio, separado da conta de cliente.
+O painel abre pelo endereço `/painel` (não há link para ele na loja) e exige um login próprio, separado da conta de cliente.
 
 | Perfil | Pode |
 |---|---|

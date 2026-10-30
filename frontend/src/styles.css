@@ -50,11 +50,7 @@ nav .brand { display: inline-flex; align-items: center; margin-right: auto; }
 nav .brand img { display: block; height: 72px; width: auto; }
 @media (max-width: 520px) {
   nav .brand img { height: 52px; }
-  .seg button { padding: 7px 10px; font-size: .84rem; }
 }
-.seg { display: inline-flex; padding: 3px; gap: 2px; background: var(--surface-2); border: 1px solid var(--line); border-radius: 12px; }
-.seg button { background: none; border: 0; border-radius: 9px; padding: 7px 14px; font: 600 .9rem var(--body); color: var(--muted); cursor: pointer; }
-.seg button.on { background: var(--accent-soft); color: var(--accent); box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--accent) 35%, transparent); }
 
 main { max-width: 960px; margin: 0 auto; padding: 24px 16px 56px; }
 
