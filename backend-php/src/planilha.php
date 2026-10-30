@@ -1,10 +1,29 @@
 <?php
 /**
  * Leitura de planilha sem dependencias: .xlsx (primeira aba, via ZipArchive + XML) ou .csv.
- * Retorna lista de linhas como ['coluna_em_minusculo' => 'valor'].
+ * Retorna lista de linhas como ['coluna' => 'valor'], com o cabecalho normalizado por nome_coluna().
  */
 
 declare(strict_types=1);
+
+/** Cabecalhos do arquivo da Capemisa -> nomes internos. Comparacao sem acento e em minusculo. */
+const COLUNAS_CAPEMISA = [
+    'numero da sorte'    => 'numero',
+    'numero da serie'    => 'serie',
+    'codigo do plano'    => 'codigo_plano',
+    'numero ordem'       => 'numero_ordem',
+    'numero de registro' => 'numero_registro',
+];
+
+/** "Número da Sorte" -> "numero"; cabecalhos fora da lista ficam em minusculo e sem acento. */
+function nome_coluna(string $h): string
+{
+    $h = strtolower(trim(strtr($h, ['á' => 'a', 'à' => 'a', 'â' => 'a', 'ã' => 'a', 'é' => 'e', 'ê' => 'e', 'í' => 'i',
+        'ó' => 'o', 'ô' => 'o', 'õ' => 'o', 'ú' => 'u', 'ç' => 'c', 'Á' => 'A', 'É' => 'E', 'Í' => 'I', 'Ó' => 'O',
+        'Ú' => 'U', 'Ç' => 'C'])));
+    $h = preg_replace('/\s+/', ' ', $h);
+    return COLUNAS_CAPEMISA[$h] ?? $h;
+}
 
 function ler_planilha(string $nome, string $caminho): array
 {
@@ -26,7 +45,9 @@ function ler_csv(string $caminho): array
     if (!$cab) {
         return [];
     }
-    $cab = array_map(fn($h) => strtolower(trim((string) $h)), $cab);
+    // CSV salvo pelo Excel em ANSI chega em Windows-1252
+    $cab = array_map(fn($h) => nome_coluna(mb_check_encoding((string) $h, 'UTF-8') ? (string) $h
+        : mb_convert_encoding((string) $h, 'UTF-8', 'Windows-1252')), $cab);
     $out = [];
     while (($l = fgetcsv($f, 0, $sep, '"', '')) !== false) {
         if ($l === [null]) {
@@ -102,6 +123,9 @@ function ler_xlsx(string $caminho): array
                 $v = (string) $c->is->t;
             } else {
                 $v = (string) $c->v;
+                if (preg_match('/^\d+(\.\d+)?E\+\d+$/i', $v)) {
+                    $v = sprintf('%.0f', (float) $v);             // numero longo (registro) gravado como 1.2E+11
+                }
             }
             $valores[$col] = $v;
         }
@@ -113,7 +137,7 @@ function ler_xlsx(string $caminho): array
 
     $cab = [];
     foreach (array_shift($grade) as $i => $h) {
-        $cab[$i] = strtolower(trim($h));
+        $cab[$i] = nome_coluna($h);
     }
     $out = [];
     foreach ($grade as $valores) {

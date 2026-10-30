@@ -87,6 +87,9 @@ function concat_numeros(string $coluna): string
     return mysql() ? "GROUP_CONCAT({$coluna} ORDER BY {$coluna} SEPARATOR ', ')" : "GROUP_CONCAT({$coluna}, ', ')";
 }
 
+/** Dados do titulo que vem no arquivo da Capemisa e voltam no CSV de retorno. */
+const COLUNAS_NUMERO_CAPEMISA = ['codigo_plano', 'numero_ordem', 'numero_registro'];
+
 /**
  * Schema MySQL (InnoDB, utf8mb4). Criado uma vez, quando a tabela config ainda nao existe.
  * Bases SQLite antigas migram com: php ferramentas/sqlite_para_mysql.php
@@ -94,6 +97,13 @@ function concat_numeros(string $coluna): string
 function init_mysql(PDO $pdo): void
 {
     if ($pdo->query("SHOW TABLES LIKE 'config'")->fetch()) {
+        // migracoes de bases antigas
+        $cols = array_column($pdo->query('SHOW COLUMNS FROM numeros')->fetchAll(), 'Field');
+        foreach (COLUNAS_NUMERO_CAPEMISA as $col) {
+            if (!in_array($col, $cols, true)) {
+                $pdo->exec("ALTER TABLE numeros ADD COLUMN {$col} VARCHAR(50) NULL");
+            }
+        }
         return;
     }
     $agora = 'DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP';
@@ -154,6 +164,9 @@ function init_mysql(PDO $pdo): void
             numero VARCHAR(50) NOT NULL,
             serie VARCHAR(50) NULL,
             sorteio VARCHAR(150) NULL,
+            codigo_plano VARCHAR(50) NULL,
+            numero_ordem VARCHAR(50) NULL,
+            numero_registro VARCHAR(50) NULL,
             status VARCHAR(20) NOT NULL DEFAULT 'livre',
             venda_id INT NULL,
             atribuido_em DATETIME NULL,
@@ -328,6 +341,13 @@ SQL);
         $pdo->exec('ALTER TABLE clientes ADD COLUMN asaas_id TEXT');
     }
     migrar_sorteios($pdo);
+    // depois de migrar_sorteios, que recria numeros sem estas colunas
+    $cols = array_column($pdo->query('PRAGMA table_info(numeros)')->fetchAll(), 'name');
+    foreach (COLUNAS_NUMERO_CAPEMISA as $col) {
+        if (!in_array($col, $cols, true)) {
+            $pdo->exec("ALTER TABLE numeros ADD COLUMN {$col} TEXT");
+        }
+    }
     $pdo->exec('CREATE INDEX IF NOT EXISTS idx_vendas_cliente ON vendas(cliente_id)');
     $pdo->exec('CREATE INDEX IF NOT EXISTS idx_numeros_sorteio ON numeros(sorteio_id, status)');
     $pdo->exec('CREATE INDEX IF NOT EXISTS idx_numeros_venda ON numeros(venda_id)');

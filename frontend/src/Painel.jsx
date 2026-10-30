@@ -97,7 +97,8 @@ function PainelConteudo({ eu, onSair }) {
       <div className="grid">
         <div className="card">
           <h2>Importar lote da Capemisa</h2>
-          <p className="sub">Planilha .xlsx ou .csv com coluna <code>numero</code> (opcionais: <code>serie</code>, <code>sorteio</code>).
+          <p className="sub">Planilha .xlsx ou .csv da Capemisa com as colunas <code>Número da Série</code>, <code>Número da Sorte</code>,
+            {' '}<code>Código do Plano</code>, <code>Número Ordem</code> e <code>Número de Registro</code>. Só <code>Número da Sorte</code> é obrigatória.
             Exemplo: <code>backend-php/lote_exemplo_capemisa.xlsx</code>.</p>
           {estoque.sorteios.length === 0 ? <p className="sub">Cadastre um sorteio antes de importar.</p> : <>
             <label htmlFor="destino">Números vão para o sorteio</label>

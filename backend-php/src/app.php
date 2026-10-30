@@ -358,7 +358,7 @@ function rota_importar_lote(): void
     if (!$f || $f['error'] !== UPLOAD_ERR_OK) erro(400, 'Envie o arquivo da planilha');
     $linhas = ler_planilha($f['name'], $f['tmp_name']);
     if (!$linhas || !array_key_exists('numero', $linhas[0])) {
-        erro(400, "Planilha precisa ter coluna 'numero' (opcionais: serie, sorteio)");
+        erro(400, "Planilha precisa ter coluna 'Número da Sorte' (ou 'numero')");
     }
 
     $sid = (int) ($_POST['sorteio_id'] ?? 0) ?: (sorteio_ativo()['id'] ?? 0);
@@ -372,7 +372,8 @@ function rota_importar_lote(): void
         $loteId = (int) $pdo->lastInsertId();
         $ok = 0;
         $rejeitados = [];
-        $ins = $pdo->prepare('INSERT INTO numeros (lote_id,sorteio_id,numero,serie,sorteio) VALUES (?,?,?,?,?)');
+        $ins = $pdo->prepare('INSERT INTO numeros (lote_id,sorteio_id,numero,serie,sorteio,codigo_plano,numero_ordem,numero_registro)
+                              VALUES (?,?,?,?,?,?,?,?)');
         foreach ($linhas as $i => $l) {
             $linha = $i + 2;
             $numero = trim((string) ($l['numero'] ?? ''));
@@ -382,7 +383,8 @@ function rota_importar_lote(): void
             }
             try {
                 $ins->execute([$loteId, $sid, $numero, trim((string) ($l['serie'] ?? '')),
-                               trim((string) ($l['sorteio'] ?? '')) ?: $padrao]);
+                               trim((string) ($l['sorteio'] ?? '')) ?: $padrao,
+                               ...array_map(fn($c) => trim((string) ($l[$c] ?? '')) ?: null, COLUNAS_NUMERO_CAPEMISA)]);
                 $ok++;
             } catch (PDOException) {
                 $rejeitados[] = ['linha' => $linha, 'numero' => $numero, 'motivo' => 'duplicado neste sorteio'];
@@ -563,7 +565,7 @@ function rota_email_teste(): void
 /** Uma linha por numero, com o titular da compra (formato de retorno para a Capemisa). */
 function rota_exportar_capemisa(): void
 {
-    $sql = "SELECT n.numero, n.serie, n.sorteio, v.nome, v.cpf, v.email, v.whatsapp, n.atribuido_em, n.lote_id
+    $sql = "SELECT n.numero, n.serie, n.codigo_plano, n.numero_ordem, n.numero_registro, n.sorteio, v.nome, v.cpf, v.email, v.whatsapp, n.atribuido_em, n.lote_id
               FROM numeros n JOIN vendas v ON v.id=n.venda_id WHERE n.status='atribuido'";
     $params = [];
     if (!empty($_GET['sorteio_id'])) {
@@ -579,7 +581,7 @@ function rota_exportar_capemisa(): void
     header('Content-Type: text/csv; charset=utf-8');
     header('Content-Disposition: attachment; filename=retorno_capemisa.csv');
     $out = fopen('php://output', 'w');
-    fputcsv($out, ['numero', 'serie', 'sorteio', 'nome', 'cpf', 'email', 'whatsapp', 'atribuido_em', 'lote'], ';', '"', '', "\r\n");
+    fputcsv($out, ['numero', 'serie', 'codigo_plano', 'numero_ordem', 'numero_registro', 'sorteio', 'nome', 'cpf', 'email', 'whatsapp', 'atribuido_em', 'lote'], ';', '"', '', "\r\n");
     foreach ($rows as $r) {
         fputcsv($out, array_values($r), ';', '"', '', "\r\n");
     }
