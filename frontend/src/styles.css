@@ -54,6 +54,11 @@ nav .brand img { display: block; height: 72px; width: auto; }
 
 main { max-width: 960px; margin: 0 auto; padding: 24px 16px 56px; }
 
+/* texto legal da promocao (SUSEP/Capemisa) */
+.rodape { border-top: 1px solid var(--line); }
+.rodape p { max-width: 960px; margin: 0 auto; padding: 24px 16px 32px; font-size: .75rem; line-height: 1.6; color: var(--muted); text-align: justify; }
+.rodape a { color: inherit; text-decoration: underline; }
+
 /* ---------- cartoes */
 .card { background: var(--surface); border: 1px solid var(--line); border-radius: 18px; padding: 22px; margin-bottom: 18px; min-width: 0; box-shadow: var(--shadow); }
 .grid { display: grid; gap: 18px; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); }
