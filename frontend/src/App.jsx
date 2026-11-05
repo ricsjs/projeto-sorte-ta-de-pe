@@ -4,6 +4,9 @@ import Painel from './Painel.jsx'
 // o painel nao tem link na loja: o operador abre direto por /painel
 const noPainel = window.location.pathname.replace(/\/+$/, '') === '/painel'
 
+// o regulamento fica publicado na landing page
+const REGULAMENTO_URL = 'https://tadepeviagens.com.br/regulamento.html'
+
 export default function App() {
   return (
     <>
@@ -15,6 +18,9 @@ export default function App() {
       <main>{noPainel ? <Painel /> : <Loja />}</main>
       {!noPainel && (
         <footer className="rodape">
+          <p className="rodape-links">
+            <a href={REGULAMENTO_URL} target="_blank" rel="noopener noreferrer">Regulamento da campanha ↗</a>
+          </p>
           <p>
             Promoção da SABRINA MOURA DE MESQUITA MARTINEZ, CNPJ 56.014.314/0001-06 com a distribuição gratuita de prêmios por meio de sorteios
             lastreados em Títulos de Capitalização da Modalidade Incentivo de Contribuição Única, aprovados pelo Processo SUSEP n.º 15414.629765/2023-36,

@@ -58,6 +58,9 @@ main { max-width: 960px; margin: 0 auto; padding: 24px 16px 56px; }
 .rodape { border-top: 1px solid var(--line); }
 .rodape p { max-width: 960px; margin: 0 auto; padding: 24px 16px 32px; font-size: .75rem; line-height: 1.6; color: var(--muted); text-align: justify; }
 .rodape a { color: inherit; text-decoration: underline; }
+.rodape p.rodape-links { padding-bottom: 0; font-size: .88rem; font-weight: 700; text-align: left; }
+.rodape p.rodape-links a { color: var(--sun); text-decoration: none; }
+.rodape p.rodape-links a:hover { text-decoration: underline; }
 
 /* ---------- cartoes */
 .card { background: var(--surface); border: 1px solid var(--line); border-radius: 18px; padding: 22px; margin-bottom: 18px; min-width: 0; box-shadow: var(--shadow); }
