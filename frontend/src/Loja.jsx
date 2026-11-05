@@ -75,7 +75,7 @@ function Topo({ status }) {
 // ------------------------------------------------------------ cadastro e login
 function Acesso({ onEntrou }) {
   const [modo, setModo] = useState('cadastro')
-  const [f, setF] = useState({ nome: '', cpf: '', email: '', whatsapp: '', senha: '', login: '' })
+  const [f, setF] = useState({ nome: '', nome_social: '', cpf: '', email: '', whatsapp: '', senha: '', login: '' })
   const [erro, setErro] = useState('')
   const [carregando, setCarregando] = useState(false)
   const set = (k) => (e) => setF({ ...f, [k]: e.target.value })
@@ -98,6 +98,7 @@ function Acesso({ onEntrou }) {
         <p className="sub">O CPF identifica o titular dos roteiros no sorteio. Depois é só entrar e comprar quantos quiser.</p>
         <div className="campos">
           <div><label htmlFor="c-nome">Nome completo</label><input id="c-nome" value={f.nome} onChange={set('nome')} required autoComplete="name" /></div>
+          <div><label htmlFor="c-social">Nome social (opcional)</label><input id="c-social" value={f.nome_social} onChange={set('nome_social')} maxLength={150} placeholder="como prefere ser chamado(a)" /></div>
           <div><label htmlFor="c-cpf">CPF</label><input id="c-cpf" value={f.cpf} onChange={set('cpf')} required inputMode="numeric" placeholder="000.000.000-00" /></div>
           <div><label htmlFor="c-email">E-mail</label><input id="c-email" type="email" value={f.email} onChange={set('email')} required autoComplete="email" /></div>
           <div><label htmlFor="c-wpp">WhatsApp com DDD</label><input id="c-wpp" value={f.whatsapp} onChange={set('whatsapp')} required inputMode="tel" placeholder="(11) 99999-0000" /></div>
@@ -117,7 +118,7 @@ function Acesso({ onEntrou }) {
 }
 
 function EditarCadastro({ cliente, onSalvou }) {
-  const [f, setF] = useState({ whatsapp: cliente.whatsapp, nova_senha: '', confirmar: '', senha_atual: '' })
+  const [f, setF] = useState({ nome_social: cliente.nome_social || '', whatsapp: cliente.whatsapp, nova_senha: '', confirmar: '', senha_atual: '' })
   const [erro, setErro] = useState('')
   const [carregando, setCarregando] = useState(false)
   const set = (k) => (e) => setF({ ...f, [k]: e.target.value })
@@ -127,7 +128,7 @@ function EditarCadastro({ cliente, onSalvou }) {
     if (f.nova_senha !== f.confirmar) { setErro('A confirmação não bate com a nova senha'); return }
     setCarregando(true)
     try {
-      await api.editarCadastro({ whatsapp: f.whatsapp, nova_senha: f.nova_senha, senha_atual: f.senha_atual })
+      await api.editarCadastro({ nome_social: f.nome_social, whatsapp: f.whatsapp, nova_senha: f.nova_senha, senha_atual: f.senha_atual })
       await onSalvou()
     } catch (err) { setErro(err.message) } finally { setCarregando(false) }
   }
@@ -135,8 +136,9 @@ function EditarCadastro({ cliente, onSalvou }) {
   return (
     <form className="card" onSubmit={salvar}>
       <h2>Editar cadastro</h2>
-      <p className="sub">Nome, CPF e e-mail não mudam por aqui. Deixe a nova senha em branco para manter a atual.</p>
+      <p className="sub">Nome completo, CPF e e-mail não mudam por aqui. Deixe a nova senha em branco para manter a atual.</p>
       <div className="campos">
+        <div><label htmlFor="e-social">Nome social (opcional)</label><input id="e-social" value={f.nome_social} onChange={set('nome_social')} maxLength={150} placeholder="como prefere ser chamado(a)" /></div>
         <div><label htmlFor="e-wpp">WhatsApp com DDD</label><input id="e-wpp" value={f.whatsapp} onChange={set('whatsapp')} required inputMode="tel" /></div>
         <div><label htmlFor="e-nova">Nova senha</label><input id="e-nova" type="password" value={f.nova_senha} onChange={set('nova_senha')} minLength={6} autoComplete="new-password" placeholder="mínimo 6 caracteres" /></div>
         <div><label htmlFor="e-conf">Confirmar nova senha</label><input id="e-conf" type="password" value={f.confirmar} onChange={set('confirmar')} autoComplete="new-password" /></div>
@@ -164,6 +166,7 @@ function Conta({ conta, status, onSair, onComprou, onEditou }) {
   const [erro, setErro] = useState('')
   const [carregando, setCarregando] = useState(false)
   const { cliente, compras, numeros } = conta
+  const tratamento = cliente.nome_social || cliente.nome
   const max = Math.max(1, status.max_por_compra)
   const fechada = status.pausada || status.livres === 0
   const pendentes = compras.filter((c) => c.status === 'aguardando_pagamento')
@@ -181,9 +184,9 @@ function Conta({ conta, status, onSair, onComprou, onEditou }) {
   return (
     <>
       <div className="card perfil">
-        <span className="avatar">{cliente.nome[0]}</span>
+        <span className="avatar">{tratamento[0]}</span>
         <div style={{ minWidth: 0, flex: 1 }}>
-          <h2 style={{ margin: 0 }}>Olá, {cliente.nome.split(' ')[0]}</h2>
+          <h2 style={{ margin: 0 }}>Olá, {tratamento.split(' ')[0]}</h2>
           <div className="sub" style={{ margin: 0, fontSize: '.9rem' }}>CPF {cpfFmt(cliente.cpf)} · {cliente.email}</div>
         </div>
         <button className="ghost" onClick={() => setEditando(!editando)}>{editando ? 'Fechar' : 'Editar cadastro'}</button>

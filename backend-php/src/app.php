@@ -56,7 +56,7 @@ function cpf_valido(string $cpf): bool
 
 function cliente_publico(array $c): array
 {
-    return ['id' => (int) $c['id'], 'nome' => $c['nome'], 'cpf' => $c['cpf'], 'email' => $c['email'],
+    return ['id' => (int) $c['id'], 'nome' => $c['nome'], 'nome_social' => $c['nome_social'] ?? null, 'cpf' => $c['cpf'], 'email' => $c['email'],
             'whatsapp' => $c['whatsapp'], 'criado_em' => $c['criado_em']];
 }
 
@@ -88,6 +88,7 @@ function rota_cadastro(): void
 {
     $b = corpo_json();
     $nome = trim((string) ($b['nome'] ?? ''));
+    $nomeSocial = nome_social_do_corpo($b);
     $cpf = so_digitos((string) ($b['cpf'] ?? ''));
     $email = strtolower(trim((string) ($b['email'] ?? '')));
     $whatsapp = so_digitos((string) ($b['whatsapp'] ?? ''));
@@ -101,8 +102,8 @@ function rota_cadastro(): void
     if (um('SELECT 1 FROM clientes WHERE cpf=?', [$cpf])) erro(409, 'Já existe uma conta com este CPF. Entre com sua senha.');
     if (um('SELECT 1 FROM clientes WHERE email=?', [$email])) erro(409, 'Já existe uma conta com este e-mail. Entre com sua senha.');
 
-    q('INSERT INTO clientes (nome, cpf, email, whatsapp, senha_hash) VALUES (?,?,?,?,?)',
-        [$nome, $cpf, $email, $whatsapp, password_hash($senha, PASSWORD_DEFAULT)]);
+    q('INSERT INTO clientes (nome, nome_social, cpf, email, whatsapp, senha_hash) VALUES (?,?,?,?,?,?)',
+        [$nome, $nomeSocial, $cpf, $email, $whatsapp, password_hash($senha, PASSWORD_DEFAULT)]);
     $id = (int) db()->lastInsertId();
     json(['token' => criar_sessao_cliente($id), 'cliente' => cliente_publico(um('SELECT * FROM clientes WHERE id=?', [$id]))]);
 }
@@ -121,7 +122,21 @@ function rota_login(): void
     json(['token' => criar_sessao_cliente((int) $c['id']), 'cliente' => cliente_publico($c)]);
 }
 
-/** Cliente altera o proprio WhatsApp e/ou a senha. Sempre exige a senha atual. */
+/** Nome social opcional: vazio vira null. So para exibir; o nome civil continua valendo no sorteio. */
+function nome_social_do_corpo(array $b): ?string
+{
+    $nome = trim((string) ($b['nome_social'] ?? ''));
+    if (mb_strlen($nome) > 150) erro(422, 'Nome social muito longo');
+    return $nome === '' ? null : $nome;
+}
+
+/** Como chamar o cliente nas mensagens: nome social se houver, senao o nome civil. */
+function nome_tratamento(array $c): string
+{
+    return trim((string) ($c['nome_social'] ?? '')) ?: $c['nome'];
+}
+
+/** Cliente altera o proprio nome social, WhatsApp e/ou a senha. Sempre exige a senha atual. */
 function rota_editar_cadastro(): void
 {
     $c = cliente_atual();
@@ -133,7 +148,9 @@ function rota_editar_cadastro(): void
     $nova = (string) ($b['nova_senha'] ?? '');
     if ($nova !== '' && strlen($nova) < 6) erro(422, 'A nova senha precisa ter pelo menos 6 caracteres');
 
-    q('UPDATE clientes SET whatsapp=? WHERE id=?', [$whatsapp, $c['id']]);
+    $nomeSocial = array_key_exists('nome_social', $b) ? nome_social_do_corpo($b) : ($c['nome_social'] ?? null);
+
+    q('UPDATE clientes SET whatsapp=?, nome_social=? WHERE id=?', [$whatsapp, $nomeSocial, $c['id']]);
     if ($nova !== '') {
         q('UPDATE clientes SET senha_hash=? WHERE id=?', [password_hash($nova, PASSWORD_DEFAULT), $c['id']]);
         // senha nova derruba as outras sessoes abertas
@@ -220,8 +237,11 @@ function disparar_entrega(int $vendaId): array
         return ['ok' => false, 'erro' => 'venda sem numero'];
     }
 
-    $wa = entregar_whatsapp($venda, $numeros);
-    [$assunto, $texto, $html] = montar_entrega($venda['nome'], $numeros);
+    // a venda guarda o nome civil (vai para a Capemisa); as mensagens usam o nome social, se houver
+    $cliente = $venda['cliente_id'] ? um('SELECT nome, nome_social FROM clientes WHERE id=?', [$venda['cliente_id']]) : null;
+    $tratamento = $cliente ? nome_tratamento($cliente) : $venda['nome'];
+    $wa = entregar_whatsapp(['nome' => $tratamento] + $venda, $numeros);
+    [$assunto, $texto, $html] = montar_entrega($tratamento, $numeros);
     $em = enviar_email($venda['email'], $assunto, $texto, $html);
 
     // qualquer canal com falha deixa a venda em falha_envio, para o operador ver e reenviar
@@ -514,7 +534,7 @@ function rota_listar_vendas(): void
 
 function rota_listar_clientes(): void
 {
-    json(todos("SELECT c.id, c.nome, c.cpf, c.email, c.whatsapp, c.criado_em,
+    json(todos("SELECT c.id, c.nome, c.nome_social, c.cpf, c.email, c.whatsapp, c.criado_em,
                        (SELECT COUNT(*) FROM vendas v WHERE v.cliente_id=c.id) AS compras,
                        (SELECT COUNT(*) FROM numeros n JOIN vendas v ON v.id=n.venda_id
                          WHERE v.cliente_id=c.id AND n.status='atribuido') AS numeros,

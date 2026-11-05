@@ -104,6 +104,9 @@ function init_mysql(PDO $pdo): void
                 $pdo->exec("ALTER TABLE numeros ADD COLUMN {$col} VARCHAR(50) NULL");
             }
         }
+        if (!in_array('nome_social', array_column($pdo->query('SHOW COLUMNS FROM clientes')->fetchAll(), 'Field'), true)) {
+            $pdo->exec('ALTER TABLE clientes ADD COLUMN nome_social VARCHAR(150) NULL AFTER nome');
+        }
         return;
     }
     $agora = 'DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP';
@@ -128,6 +131,7 @@ function init_mysql(PDO $pdo): void
         "CREATE TABLE IF NOT EXISTS clientes (
             id INT AUTO_INCREMENT PRIMARY KEY,
             nome VARCHAR(150) NOT NULL,
+            nome_social VARCHAR(150) NULL,
             cpf CHAR(11) NOT NULL UNIQUE,
             email VARCHAR(190) NOT NULL UNIQUE,
             whatsapp VARCHAR(20) NOT NULL,
@@ -290,6 +294,7 @@ SQL);
 CREATE TABLE IF NOT EXISTS clientes (
   id INTEGER PRIMARY KEY AUTOINCREMENT,
   nome TEXT NOT NULL,
+  nome_social TEXT,                      -- opcional; so para exibir, o nome civil vale no sorteio
   cpf TEXT NOT NULL UNIQUE,              -- so digitos
   email TEXT NOT NULL UNIQUE,            -- minusculo
   whatsapp TEXT NOT NULL,
@@ -337,8 +342,12 @@ SQL);
             $pdo->exec("ALTER TABLE vendas ADD COLUMN {$col}");
         }
     }
-    if (!in_array('asaas_id', array_column($pdo->query('PRAGMA table_info(clientes)')->fetchAll(), 'name'), true)) {
+    $cols = array_column($pdo->query('PRAGMA table_info(clientes)')->fetchAll(), 'name');
+    if (!in_array('asaas_id', $cols, true)) {
         $pdo->exec('ALTER TABLE clientes ADD COLUMN asaas_id TEXT');
+    }
+    if (!in_array('nome_social', $cols, true)) {
+        $pdo->exec('ALTER TABLE clientes ADD COLUMN nome_social TEXT');
     }
     migrar_sorteios($pdo);
     // depois de migrar_sorteios, que recria numeros sem estas colunas

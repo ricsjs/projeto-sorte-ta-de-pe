@@ -212,7 +212,7 @@ function PainelConteudo({ eu, onSair }) {
               {clientes.length === 0 && <tr><td colSpan="9" style={{ color: 'var(--muted)' }}>Nenhum cliente cadastrado ainda.</td></tr>}
               {clientes.map((c) => (
                 <tr key={c.id}>
-                  <td>{c.id}</td><td>{c.nome}</td><td className="mono">{c.cpf}</td><td>{c.email}</td><td>{c.whatsapp}</td>
+                  <td>{c.id}</td><td>{c.nome}{c.nome_social && <div style={{ color: 'var(--muted)', fontSize: '.85em' }}>social: {c.nome_social}</div>}</td><td className="mono">{c.cpf}</td><td>{c.email}</td><td>{c.whatsapp}</td>
                   <td>{c.compras}</td><td>{c.numeros}</td>
                   <td>{(c.total_pago ?? 0).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}</td><td>{c.criado_em}</td>
                 </tr>
